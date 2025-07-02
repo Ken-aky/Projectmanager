@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import { useTodos } from "../hooks/useTodos.js";
-import { useProjects } from "../hooks/useProjects.js";
-import { useFolders } from "../hooks/useFolders.js";
+import { useTodosContext } from "../context/TodosContext.jsx";
+import { useProjectsContext } from "../context/ProjectsContext.jsx";
+import { useFoldersContext } from "../context/FoldersContext.jsx";
 import TodoCard from "../components/TodoCard.jsx";
 import TodoFormModal from "../components/TodoFormModal.jsx";
 import Card from "../components/Card.jsx";
@@ -12,32 +12,34 @@ import todoIcon from "../assets/todo.png";
 export default function TodoPage() {
   const { projectId } = useParams();
 
-  const { todos, add, update, remove, reload } = useTodos(projectId); // ✅ mit projectId!
-  const { projects } = useProjects();
-  const { folders } = useFolders();
+  const { todos, add, update, remove } = useTodosContext();
+  const { projects } = useProjectsContext();
+  const { folders } = useFoldersContext();
 
-  const project = projects.find((p) => p.id === projectId);
-  const folder = project ? folders.find((f) => f.id === project.folderId) : null;
+  const project = projects.find((p) => String(p.id) === projectId);
+  const folder = project ? folders.find((f) => String(f.id) === String(project.folderId)) : null;
 
   const [modal, setModal] = useState(null);
   const [info, setInfo] = useState(null);
 
-  /* ---------- SAVE ---------- */
+  // Nur Todos dieses Projekts anzeigen
+  const filteredTodos = todos
+    .filter((t) => String(t.projectId) === projectId)
+    .sort((a, b) => Number(a.done) - Number(b.done));
+
   const save = async (t) => {
     t.id
       ? await update(t.id, t)
-      : await add({ ...t, projectId, done: false }); // ✅ projectId setzen
+      : await add({ ...t, projectId, done: false });
     setModal(null);
   };
 
-  /* ---------- DELETE ---------- */
   const del = async (id) => {
     if (window.confirm("Delete this todo?\n\nThis action cannot be undone.")) {
       await remove(id);
     }
   };
 
-  /* ---------- TOGGLE Done ---------- */
   const toggle = async (id) => {
     const todo = todos.find((t) => t.id === id);
     if (todo) await update(id, { ...todo, done: !todo.done });
@@ -45,24 +47,22 @@ export default function TodoPage() {
 
   return (
     <section>
-      <h1>{project ? project.title : "Todos"}</h1>
+      <h1>{project?.title ? `${project.title} – Todos` : "Todos"}</h1>
 
       <ul className="grid auto-fill">
-        {todos
-          .sort((a, b) => Number(a.done) - Number(b.done))
-          .map((t) => (
-            <li key={t.id}>
-              <TodoCard
-                title={t.title}
-                done={t.done}
-                onToggle={() => toggle(t.id)}
-                onDelete={() => del(t.id)}
-                onEdit={() => setModal(t)}
-                onInfo={() => setInfo(t)}
-                infoIcon={todoIcon}
-              />
-            </li>
-          ))}
+        {filteredTodos.map((t) => (
+          <li key={t.id}>
+            <TodoCard
+              title={t.title}
+              done={t.done}
+              onToggle={() => toggle(t.id)}
+              onDelete={() => del(t.id)}
+              onEdit={() => setModal(t)}
+              onInfo={() => setInfo(t)}
+              infoIcon={todoIcon}
+            />
+          </li>
+        ))}
 
         <li>
           <Card className="add" onClick={() => setModal({})}>

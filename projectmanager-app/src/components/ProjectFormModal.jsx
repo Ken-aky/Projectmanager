@@ -1,15 +1,15 @@
 import ModalBase from "./ModalBase.jsx";
 import { useState } from "react";
-import { useFolders } from "../hooks/useFolders.js";   // für Folder-Liste
-import { useProjects } from "../hooks/useProjects.js"; // für add/update
+import { useFoldersContext } from "../context/FoldersContext.jsx";          // Folder-Dropdown bleibt lokal
+import { useProjectsContext } from "../context/ProjectsContext.jsx"; // ⬅️ globaler Project-Context
 
 export default function ProjectFormModal({ folderId, initial, onClose }) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [selectedFolder, setSelectedFolder] = useState(folderId);
 
-  const { folders } = useFolders();         // Folder-Dropdown
-  const { add, update } = useProjects();    // API-Aktionen
+  const { folders } = useFoldersContext();
+  const { add, update } = useProjectsContext(); // ⬅️ globaler Zugriff auf Projekte
 
   const onSubmit = async (e) => {
     e.preventDefault();

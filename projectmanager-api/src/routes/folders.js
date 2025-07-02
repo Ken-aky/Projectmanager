@@ -57,11 +57,24 @@ r.put("/:id", async (req, res) => {
   }
 });
 
-/* ───── DELETE /api/folders/:id ───── */
+// DELETE /api/folders/:id
 r.delete("/:id", async (req, res) => {
   try {
-    const id = req.params.id;
-    await db("folders").where({ id }).del();
+    const folderId = req.params.id;
+
+    // Alle Projekte im Folder holen
+    const projects = await db("projects").where({ folderId });
+
+    // Alle Todos dieser Projekte löschen
+    const projectIds = projects.map((p) => p.id);
+    await db("todos").whereIn("projectId", projectIds).del();
+
+    // Projekte löschen
+    await db("projects").whereIn("id", projectIds).del();
+
+    // Ordner löschen
+    await db("folders").where({ id: folderId }).del();
+
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /folders/:id", err.message);

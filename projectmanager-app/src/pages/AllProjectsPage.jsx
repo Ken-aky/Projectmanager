@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import { useContext } from "react";
-import { useProjects } from "../hooks/useProjects.js";
+import { useProjectsContext } from "../context/ProjectsContext.jsx"; // ⬅️ neuer Context
 import Card from "../components/Card.jsx";
 import projectIcon from "../assets/project.png";
-import { PanelCtx } from "../App.jsx"; // Kontext importieren
+import { PanelCtx } from "../App.jsx";
 
 export default function AllProjectsPage() {
-  const { projects } = useProjects();          // Aus API laden
-  const { setPanel } = useContext(PanelCtx);  // Info-Panel-Setter
+  const { projects } = useProjectsContext();      // ⬅️ globaler State
+  const { setPanel } = useContext(PanelCtx);
 
   return (
     <section>
@@ -21,8 +21,8 @@ export default function AllProjectsPage() {
                 className="view-only"
                 infoIcon={projectIcon}
                 onInfo={(e) => {
-                  e.preventDefault();              // Link-Klick verhindern
-                  setPanel({ type: "project", data: p }); // Info anzeigen
+                  e.preventDefault();
+                  setPanel({ type: "project", data: p });
                 }}
               >
                 {p.title}

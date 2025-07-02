@@ -1,9 +1,9 @@
 import ModalBase from "./ModalBase";
 import { useState } from "react";
-import { useFolders } from "../hooks/useFolders.js"; // ✅ API-Hook importieren
+import { useFoldersContext } from "../context/FoldersContext.jsx"; // ✅ API-Hook importieren
 
 export default function FolderFormModal({ initial, onClose }) {
-  const { add, update } = useFolders(); // ✅ API-Methoden
+  const { add, update } = useFoldersContext();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
 

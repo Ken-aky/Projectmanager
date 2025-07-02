@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { useContext } from "react";
-import { useTodos } from "../hooks/useTodos.js";
+import { useTodosContext } from "../context/TodosContext.jsx"; // ⬅️ Neuer Import
 import Card from "../components/Card.jsx";
 import todoIcon from "../assets/todo.png";
 import { PanelCtx } from "../App.jsx";
 
 export default function AllTodosPage() {
-  const { todos } = useTodos();             // API-Hook statt SessionState
+  const { todos } = useTodosContext(); // ⬅️ Globaler State
   const { setPanel } = useContext(PanelCtx);
 
   return (
@@ -21,8 +21,8 @@ export default function AllTodosPage() {
                 className="view-only"
                 infoIcon={todoIcon}
                 onInfo={(e) => {
-                  e.preventDefault();              // Link verhindern
-                  setPanel({ type: "todo", data: t }); // Info anzeigen
+                  e.preventDefault();
+                  setPanel({ type: "todo", data: t });
                 }}
               >
                 {t.title}

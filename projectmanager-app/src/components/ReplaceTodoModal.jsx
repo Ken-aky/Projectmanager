@@ -1,9 +1,9 @@
 import { useState } from "react";
-import ModalBase from "./ModalBase";
-import { useTodos } from "../hooks/useTodos.js"; // ⬅️ Statt useSessionState
+import ModalBase from "./ModalBase.jsx";
+import { useTodosContext } from "../context/TodosContext.jsx";
 
 export default function ReplaceTodoModal({ excludeIds = [], onSelect, onClose }) {
-  const { todos } = useTodos(); // ⬅️ Backend-Daten laden
+  const { todos } = useTodosContext();
   const [query, setQuery] = useState("");
 
   const filtered = todos.filter((t) =>
@@ -20,6 +20,7 @@ export default function ReplaceTodoModal({ excludeIds = [], onSelect, onClose })
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+
       <ul className="todo-select-list">
         {filtered.map((t) => (
           <li key={t.id}>
@@ -28,6 +29,13 @@ export default function ReplaceTodoModal({ excludeIds = [], onSelect, onClose })
         ))}
         {filtered.length === 0 && <li className="empty">No match</li>}
       </ul>
+
+      {/* Cancel-Button hinzufügen */}
+      <div className="modal-buttons">
+        <button type="button" className="secondary" onClick={onClose}>
+          Cancel
+        </button>
+      </div>
     </ModalBase>
   );
 }

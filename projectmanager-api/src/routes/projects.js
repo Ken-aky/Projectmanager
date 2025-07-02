@@ -61,7 +61,13 @@ r.put("/:id", async (req, res) => {
 r.delete("/:id", async (req, res) => {
   try {
     const id = req.params.id;
+
+    // Zuerst Todos des Projekts löschen
+    await db("todos").where({ projectId: id }).del();
+
+    // Dann das Projekt löschen
     await db("projects").where({ id }).del();
+
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /projects/:id", err.message);

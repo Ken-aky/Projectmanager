@@ -1,17 +1,17 @@
 import ModalBase from "./ModalBase.jsx";
 import { useState } from "react";
-import { useTodos } from "../hooks/useTodos.js";
+import { useTodosContext } from "../context/TodosContext.jsx"; // ⬅️ ersetzt useTodos
 import { useProjects } from "../hooks/useProjects.js";
 
 export default function TodoFormModal({ projectId, initial, onClose }) {
-  const [title, setTitle]         = useState(initial?.title ?? "");
-  const [priority, setPriority]   = useState(initial?.priority ?? "medium");
-  const [description, setDesc]    = useState(initial?.description ?? "");
-  const [dueDate, setDueDate]     = useState(initial?.dueDate ?? "");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [priority, setPriority] = useState(initial?.priority ?? "medium");
+  const [description, setDesc] = useState(initial?.description ?? "");
+  const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
   const [targetProject, setTargetProject] = useState(projectId);
 
-  const { add, update } = useTodos();
-  const { projects }    = useProjects();
+  const { add, update } = useTodosContext();     // ⬅️ globaler State
+  const { projects } = useProjects();
 
   const onSubmit = async (e) => {
     e.preventDefault();

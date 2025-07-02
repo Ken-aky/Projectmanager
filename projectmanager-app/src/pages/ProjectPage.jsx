@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useProjects } from "../hooks/useProjects.js";
-import { useTodos } from "../hooks/useTodos.js";
-import { useFolders } from "../hooks/useFolders.js";
+import { useProjectsContext } from "../context/ProjectsContext.jsx";
+import { useTodosContext } from "../context/TodosContext.jsx";
+import { useFoldersContext } from "../context/FoldersContext.jsx";
 import ProjectFormModal from "../components/ProjectFormModal.jsx";
 import Card from "../components/Card.jsx";
 import InfoModal from "../components/InfoModal.jsx";
@@ -12,11 +12,12 @@ export default function ProjectPage() {
   const { folderId } = useParams();
   const navigate = useNavigate();
 
-  const { projects, add, update, remove } = useProjects(folderId); // ✅ folderId übergeben
-  const { todos } = useTodos();
-  const { folders } = useFolders();
+  const { projects, add, update, remove } = useProjectsContext();
+  const { todos, reload: reloadTodos } = useTodosContext();
+  const { folders } = useFoldersContext();
 
-  const folder = folders.find((f) => f.id === folderId);
+  const filteredProjects = projects.filter((p) => String(p.folderId) === folderId);
+  const folder = folders.find((f) => String(f.id) === folderId);
 
   const [modal, setModal] = useState(null);
   const [info, setInfo] = useState(null);
@@ -31,42 +32,44 @@ export default function ProjectPage() {
 
   /* ---------- DELETE ---------- */
   const deleteCascade = async (projectId) => {
-    const orphanTodos = todos.filter((t) => t.projectId === projectId);
+  const orphanTodos = todos.filter((t) => t.projectId === projectId);
 
-    const ok = window.confirm(
-      `Delete project?\n\n` +
-        `This will also remove ${orphanTodos.length} todo(s).\n\n` +
-        `Tip: Move todos elsewhere before deleting, if needed.`
-    );
-    if (!ok) return;
+  const ok = window.confirm(
+    `Delete project?\n\n` +
+      `This will also remove ${orphanTodos.length} todo(s).\n\n` +
+      `Tip: Move todos elsewhere before deleting, if needed.`
+  );
+  if (!ok) return;
 
-    await remove(projectId);
+  await remove(projectId);
+  await reloadTodos(); // 🔄 Todos neu laden nach dem Löschen
   };
+
 
   return (
     <section>
-      <h1>{folder ? `${folder.title} – Projects` : "Projects"}</h1>
+      <h1>{folder?.title ? `${folder.title} – Projects` : "Projects"}</h1>
 
       <ul className="grid auto-fill">
-        {projects.map((p) => (
-          <li key={p.id}>
-            <Card
-              className="view-only"
-              onClick={() => navigate(`/todos/${p.id}`)}
-              onInfo={() => setInfo(p)}
-              infoIcon={projectIcon}
+      {filteredProjects.map((p) => (
+        <li key={p.id}>
+          <Card
+            className="view-only"
+            onClick={() => navigate(`/todos/${p.id}`)}
+            onInfo={() => setInfo(p)}
+            infoIcon={projectIcon}
+          >
+            {p.title}
+            <div
+              className="card-buttons"
+              onClick={(e) => e.stopPropagation()}
             >
-              {p.title}
-              <div
-                className="card-buttons"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button onClick={() => deleteCascade(p.id)}>Delete</button>
-                <button onClick={() => setModal(p)}>Change</button>
-              </div>
-            </Card>
-          </li>
-        ))}
+              <button onClick={() => deleteCascade(p.id)}>Delete</button>
+              <button onClick={() => setModal(p)}>Change</button>
+            </div>
+          </Card>
+        </li>
+      ))}
 
         <li>
           <Card className="add" onClick={() => setModal({})}>
