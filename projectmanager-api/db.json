@@ -1,0 +1,63 @@
+{
+  "folders": [
+    {
+      "id": 1,
+      "title": "TestFolder",
+      "description": "This is a test"
+    },
+    {
+      "id": 2,
+      "title": "Folder2",
+      "description": "this is A test"
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "title": "Project1",
+      "description": "this is a test",
+      "folderId": 1
+    },
+    {
+      "id": 2,
+      "title": "project2",
+      "description": "this is a test",
+      "folderId": 1
+    },
+    {
+      "id": 3,
+      "title": "project3",
+      "description": "test",
+      "folderId": 2
+    }
+  ],
+  "todos": [
+    {
+      "id": 1,
+      "title": "Todo1",
+      "priority": "high",
+      "description": "this is a test",
+      "dueDate": "2025-02-12",
+      "done": false,
+      "projectId": 1
+    },
+    {
+      "id": 2,
+      "title": "Todo2",
+      "priority": "high",
+      "description": "this is a test",
+      "dueDate": "2026-03-13",
+      "done": false,
+      "projectId": 2
+    },
+    {
+      "id": 3,
+      "title": "todo3",
+      "priority": "low",
+      "description": "test",
+      "dueDate": "2000-01-01",
+      "done": false,
+      "projectId": 3
+    }
+  ]
+}
