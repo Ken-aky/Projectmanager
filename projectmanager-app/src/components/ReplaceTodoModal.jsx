@@ -8,9 +8,11 @@ export default function ReplaceTodoModal({ excludeIds, onSelect, onClose }) {
 
   const filtered = todos.filter(
     (t) =>
+      !t.done && 
       !excludeIds.includes(t.id) &&
       t.title.toLowerCase().includes(query.toLowerCase())
   );
+
 
   return (
     <ModalBase title="Select Todo" onClose={onClose}>
