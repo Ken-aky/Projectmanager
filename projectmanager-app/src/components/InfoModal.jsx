@@ -6,12 +6,11 @@ export default function InfoModal({ title, data, onClose }) {
       <ul className="info-list">
         {Object.entries(data).map(([key, val]) => (
           <li key={key}>
-            <strong>{key}:</strong> {val || "—"}
+            <strong>{key}:</strong> {val?.toString() || "—"}
           </li>
         ))}
       </ul>
 
-      {/* Button-Leiste – Cancel links */}
       <div className="modal-buttons">
         <button
           type="button"

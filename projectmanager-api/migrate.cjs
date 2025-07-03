@@ -54,6 +54,13 @@ const migrate = async () => {
     });
   }
 
+  const hasEffort = await db.schema.hasColumn("todos", "effort");
+  if (!hasEffort) {
+    await db.schema.alterTable("todos", (t) => {
+      t.string("effort");
+    });
+  }
+
   console.log("✅ Migration abgeschlossen.");
   process.exit();
 };

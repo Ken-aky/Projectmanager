@@ -22,7 +22,6 @@ export default function TodoPage() {
   const [modal, setModal] = useState(null);
   const [info, setInfo] = useState(null);
 
-  // Nur Todos dieses Projekts anzeigen
   const filteredTodos = todos
     .filter((t) => String(t.projectId) === projectId)
     .sort((a, b) => Number(a.done) - Number(b.done));
@@ -47,13 +46,16 @@ export default function TodoPage() {
 
   return (
     <section>
-      <h1>{project?.title ? `${project.title} – Todos` : "Todos"}</h1>
+      <h1 style={{ textAlign: "center" }}>
+        {project?.title ? `${project.title} – Todos` : "Todos"}
+      </h1>
 
       <ul className="grid auto-fill">
         {filteredTodos.map((t) => (
           <li key={t.id} className="card-wrapper">
             <TodoCard
               title={t.title}
+              effort={t.effort}  
               done={t.done}
               onToggle={() => toggle(t.id)}
               onInfo={() => setInfo(t)}
@@ -74,7 +76,6 @@ export default function TodoPage() {
         </li>
       </ul>
 
-
       {modal && (
         <TodoFormModal
           projectId={projectId}
@@ -89,6 +90,7 @@ export default function TodoPage() {
           title="Todo info"
           data={{
             Title: info.title,
+            Effort: info.effort, // 🆕 effort in Info-Modal anzeigen
             Priority: info.priority,
             Description: info.description,
             "Due date": info.dueDate,

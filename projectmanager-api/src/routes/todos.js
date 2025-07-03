@@ -31,9 +31,14 @@ r.get("/:id", async (req, res) => {
 /* ───── POST /api/todos ───── */
 r.post("/", async (req, res) => {
   try {
-    const { title, priority, projectId, description, dueDate } = req.body;
+    const { title, priority, projectId, description, dueDate, effort } = req.body;
     if (!title || !priority || !projectId) {
       return res.status(400).json({ error: "title, priority & projectId required" });
+    }
+
+    const validEfforts = ["low", "middle", "high"];
+    if (effort && !validEfforts.includes(effort)) {
+      return res.status(400).json({ error: "Invalid effort value (allowed: low, middle, high)" });
     }
 
     const [id] = await db("todos").insert({
@@ -42,8 +47,10 @@ r.post("/", async (req, res) => {
       description,
       dueDate,
       projectId,
+      effort,         
       done: false,
     });
+
 
     const newTodo = await db("todos").where({ id }).first();
     res.status(201).json(newTodo);
@@ -56,6 +63,11 @@ r.post("/", async (req, res) => {
 /* ───── PUT /api/todos/:id ───── */
 r.put("/:id", async (req, res) => {
   try {
+    const validEfforts = ["low", "middle", "high"];
+    if (req.body.effort && !validEfforts.includes(req.body.effort)) {
+      return res.status(400).json({ error: "Invalid effort value (allowed: low, middle, high)" });
+    }
+
     const id = req.params.id;
     if (!id || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: "invalid request" });

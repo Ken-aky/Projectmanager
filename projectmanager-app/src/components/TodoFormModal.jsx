@@ -9,6 +9,7 @@ export default function TodoFormModal({ projectId, initial, onClose }) {
   const [description, setDesc] = useState(initial?.description ?? "");
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
   const [targetProject, setTargetProject] = useState(projectId);
+  const [effort, setEffort] = useState(initial?.effort ?? "");
 
   const { add, update } = useTodosContext();     // ⬅️ globaler State
   const { projects } = useProjects();
@@ -20,6 +21,7 @@ export default function TodoFormModal({ projectId, initial, onClose }) {
       priority,
       description,
       dueDate,
+      effort,
       projectId: targetProject,
     };
     if (initial?.id) await update(initial.id, data);
@@ -68,6 +70,17 @@ export default function TodoFormModal({ projectId, initial, onClose }) {
           Due date
           <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </label>
+
+        <label>
+          Effort*
+          <select value={effort} onChange={(e) => setEffort(e.target.value)} required>
+            <option value="">— select —</option>
+            <option value="low">Low</option>
+            <option value="middle">Middle</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+
 
         <div className="modal-buttons">
           <button type="button" className="secondary" onClick={onClose}>Cancel</button>

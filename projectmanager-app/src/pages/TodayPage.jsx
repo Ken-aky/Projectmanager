@@ -75,7 +75,7 @@ export default function TodayPage() {
 
   return (
     <section>
-      <h1>Today</h1>
+      <h1 style={{ textAlign: "center" }}>Today</h1>
 
       <ul className="top-row">
         <li className="card-wrapper">
@@ -96,6 +96,7 @@ export default function TodayPage() {
             <TodoCard
               title={t.title}
               done={t.done}
+              effort={t.effort} // 🆕 effort weitergeben
               onToggle={() => toggleDone(t.id)}
             />
             <div className="todo-buttons">
