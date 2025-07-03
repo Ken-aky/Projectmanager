@@ -1,24 +1,19 @@
-export default function Card({
-  children,
-  className = "",
-  onInfo,  
-  infoIcon,            //  NEU — Info-Handler
-  ...props
-}) {
+export default function Card({ className = "", children, onClick, onInfo, infoIcon }) {
   return (
-    <div className={`card ${className}`.trim()} {...props}>
-      {infoIcon && (
-         <img
-         src={infoIcon}
-         alt="info"
-         className="info-icon"
-         onClick={(e) => {
-           if (onInfo) {          // klickbar nur, wenn Handler übergeben
-             e.stopPropagation();
-             onInfo();
-           }
-         }}
-       style={{ cursor: onInfo ? "pointer" : "default" }} />
+    <div
+      className={`card ${className}`}
+      onClick={onClick}
+    >
+      {onInfo && (
+        <img
+          className="info-icon"
+          src={infoIcon}
+          alt="info"
+          onClick={(e) => {
+            e.stopPropagation();
+            onInfo();
+          }}
+        />
       )}
       {children}
     </div>

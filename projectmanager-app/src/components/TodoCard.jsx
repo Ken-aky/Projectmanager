@@ -8,7 +8,7 @@ export default function TodoCard({
   infoIcon,
 }) {
   return (
-    <Card onInfo={onInfo} infoIcon={infoIcon}>
+    <Card onInfo={onInfo} infoIcon={infoIcon} className={done ? "done" : ""}>
       <div className="todo-content">
         <input
           type="checkbox"

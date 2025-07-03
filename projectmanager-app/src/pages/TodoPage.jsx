@@ -62,10 +62,13 @@ export default function TodoPage() {
               infoIcon={todoIcon}
             />
 
-            <div className="todo-buttons">
-              <button onClick={() => del(t.id)}>Delete</button>
-              <button onClick={() => setModal(t)}>Change</button>
-            </div>
+            {!t.done && (
+              <div className="todo-buttons">
+                <button onClick={() => remove(t.id)}>Delete</button>
+                <button onClick={() => replace(i)}>Change</button>
+              </div>
+            )}
+
           </li>
         ))}
 

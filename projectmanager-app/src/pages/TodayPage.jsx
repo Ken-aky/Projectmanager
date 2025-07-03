@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useTodos } from "../hooks/useTodos.js";
+import { useTodosContext } from "../context/TodosContext.jsx";
 import { useSessionState } from "../hooks/useSessionState.js";
 import TodoCard from "../components/TodoCard.jsx";
 import ReplaceTodoModal from "../components/ReplaceTodoModal.jsx";
 import Card from "../components/Card.jsx";
 
 export default function TodayPage() {
-  const { todos, reload } = useTodos();
+  const { todos, update } = useTodosContext();
   const [todayIds, setTodayIds] = useSessionState("todayTodoIds", []);
   const [modal, setModal] = useState({ open: false, index: -1 });
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,6 @@ export default function TodayPage() {
     .sort((a, b) => Number(a.done) - Number(b.done));
 
   const remove = (id) => {
-    const todo = todos.find((t) => t.id === id);
     if (window.confirm("Remove this todo from Today?")) {
       setTodayIds(todayIds.filter((tid) => tid !== id));
     }
@@ -31,19 +30,15 @@ export default function TodayPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ done: !todo.done }),
     });
-    reload();
+    await update(id, { ...todo, done: !todo.done });
   };
 
   const replace = (index) => setModal({ open: true, index });
 
   const onSelect = (todoId) => {
-    if (modal.index === -1) {
-      setTodayIds([...todayIds, todoId]);
-    } else {
-      const next = [...todayIds];
-      next[modal.index] = todoId;
-      setTodayIds(next);
-    }
+    const next = [...todayIds];
+    modal.index === -1 ? next.push(todoId) : (next[modal.index] = todoId);
+    setTodayIds(next);
     setModal({ open: false, index: -1 });
   };
 
@@ -54,12 +49,19 @@ export default function TodayPage() {
         method: "POST",
       });
       const raw = await res.text();
-      const match = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/) || raw.match(/\[.*\]/s);
-      const jsonString = match ? (match[1] || match[0]) : "[]";
+
+      // Robust extraktion ohne Formatierungsreste
+      let jsonString = raw.trim();
+      if (jsonString.startsWith("```")) {
+        const match = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (match) jsonString = match[1].trim();
+      }
+
       const parsed = JSON.parse(jsonString);
       const titles = parsed
         .map((s) => (typeof s.title === "string" ? s.title.toLowerCase() : null))
         .filter(Boolean);
+
       const matchingTodos = todos.filter((t) =>
         titles.includes(t.title.toLowerCase())
       );
@@ -96,13 +98,15 @@ export default function TodayPage() {
             <TodoCard
               title={t.title}
               done={t.done}
-              effort={t.effort} // 🆕 effort weitergeben
+              effort={t.effort}
               onToggle={() => toggleDone(t.id)}
             />
-            <div className="todo-buttons">
-              <button onClick={() => remove(t.id)}>Delete</button>
-              <button onClick={() => replace(i)}>Change</button>
-            </div>
+            {!t.done && (
+              <div className="todo-buttons">
+                <button onClick={() => remove(t.id)}>Delete</button>
+                <button onClick={() => replace(i)}>Change</button>
+              </div>
+            )}
           </li>
         ))}
       </ul>

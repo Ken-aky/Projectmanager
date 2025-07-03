@@ -18,40 +18,72 @@ router.post("/suggestions", async (req, res) => {
         description: p.description,
       })),
       todos: todos
-        .filter((t) => !t.done) // ✅ Nur offene Todos
+        .filter((t) => !t.done)
         .map((t) => ({
           id: t.id,
           title: t.title,
+          description: t.description,
           priority: t.priority,
           dueDate: t.dueDate,
+          effort: t.effort,
+          done: false,
         })),
     };
 
     const prompt = `
-Ich bin ein smarter Tagesplaner. 
-Basierend auf folgenden Projekten und offenen To-dos soll ich **genau 3** sinnvolle Aufgaben für heute vorschlagen.
+    Du bist ein intelligenter Task-Planer.
 
-Projekte:
-${context.projects.map((p) => `- ${p.title}: ${p.description}`).join("\n")}
+    🔍 Ziel: Wähle aus den offenen To-dos eine **sinnvolle Auswahl für heute**, die realistisch machbar ist – basierend auf:
 
-Offene To-dos:
-${context.todos.map((t) => `- ${t.title} (${t.priority})`).join("\n")}
+    📌 **Priorität**
+    - high = bevorzugt auswählen
+    - medium = ergänzend
+    - low = optional
 
-Gib das Ergebnis als JSON-Array mit exakt diesen Feldern zurück:
+    ⏰ **Fälligkeitsdatum**
+    - Überfällig oder heute = sehr wichtig
+    - In 1–2 Tagen = mittel
+    - Später oder kein Datum = niedrig priorisieren
 
-[
-  {
-    "id": "...",
-    "title": "...",
-    "description": "...",
-    "priority": "...",
-    "dueDate": "...",
-    "done": false
-  }
-]
+    💪 **Aufwand (effort)**
+    - high = sehr aufwendig → max. 1–2 Stück
+    - medium = normal → einige erlaubt
+    - low = leicht → mehrere erlaubt
 
-Gib **nur** gültiges JSON zurück – ohne Einleitung, ohne Formatierung, ohne Kommentare.
-`;
+    🧠 **Erstelle eine sinnvolle Mischung**, z. B.:
+    - 1 aufwendige Aufgabe (effort: high)
+    - 2–3 normale (effort: medium)
+    - mehrere kleine (effort: low)
+
+    ⚠️ Verwende **keine Platzhalter** wie "..." oder "string" oder "null" als Text.
+    Wenn du keine Beschreibung hast, setze einfach ein leeres Feld: "".
+
+    🔹 **Antwortformat (Pflicht):**
+    [
+      {
+        "id": "EXAKT wie oben in der Todo-Liste",
+        "title": "...",
+        "description": "...",
+        "priority": "low | medium | high",
+        "dueDate": "YYYY-MM-DD" oder "",
+        "effort": "low | middle | high",
+        "done": false
+      }
+    ]
+
+    🔐 Gib **nur gültiges JSON** zurück – ohne Einleitung, ohne Formatierung, ohne \`\`\`, ohne Kommentare.
+
+    📊 Daten:
+
+    Projekte:
+    ${context.projects.map((p) => `- ${p.title}: ${p.description}`).join("\n")}
+
+    Offene To-dos:
+    ${context.todos.map((t) =>
+      `- ${t.id}: ${t.title} | Prio: ${t.priority} | Due: ${t.dueDate ?? "—"} | Effort: ${t.effort ?? "—"}`
+    ).join("\n")}
+    `;
+
 
     const openrouterRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -71,10 +103,8 @@ Gib **nur** gültiges JSON zurück – ohne Einleitung, ohne Formatierung, ohne 
     console.log("🔎 GPT RAW TEXT:\n", text);
 
     try {
-      // Versuche, JSON aus der Antwort zu extrahieren
       const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
       const jsonString = match ? match[1] : text;
-
       const suggestions = JSON.parse(jsonString);
 
       if (!Array.isArray(suggestions)) {
