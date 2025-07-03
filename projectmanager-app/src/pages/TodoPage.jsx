@@ -51,25 +51,29 @@ export default function TodoPage() {
 
       <ul className="grid auto-fill">
         {filteredTodos.map((t) => (
-          <li key={t.id}>
+          <li key={t.id} className="card-wrapper">
             <TodoCard
               title={t.title}
               done={t.done}
               onToggle={() => toggle(t.id)}
-              onDelete={() => del(t.id)}
-              onEdit={() => setModal(t)}
               onInfo={() => setInfo(t)}
               infoIcon={todoIcon}
             />
+
+            <div className="todo-buttons">
+              <button onClick={() => del(t.id)}>Delete</button>
+              <button onClick={() => setModal(t)}>Change</button>
+            </div>
           </li>
         ))}
 
-        <li>
+        <li className="card-wrapper">
           <Card className="add" onClick={() => setModal({})}>
             + Add todo
           </Card>
         </li>
       </ul>
+
 
       {modal && (
         <TodoFormModal

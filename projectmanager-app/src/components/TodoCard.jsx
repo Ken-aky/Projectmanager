@@ -1,22 +1,22 @@
-
 import Card from "./Card.jsx";
 
 export default function TodoCard({
   title,
-  done = false,        //  NEU
-  onToggle,            //  NEU
-  onDelete,
-  onEdit,
+  done = false,
+  onToggle,
   onInfo,
   infoIcon,
 }) {
-   return (
-    <Card onInfo={onInfo} onClick={onToggle} infoIcon={infoIcon}>
-      <span className={done ? "todo-done" : ""}>{title}</span>
-       <div className="todo-buttons">
-         <button onClick={onDelete}>Delete</button>
-         <button onClick={onEdit}>Change</button>
-       </div>
-     </Card>
-   );
- }
+  return (
+    <Card onInfo={onInfo} infoIcon={infoIcon}>
+      <div className="todo-content">
+        <input
+          type="checkbox"
+          checked={done}
+          onChange={onToggle}
+        />
+        <span className={done ? "todo-done" : ""}>{title}</span>
+      </div>
+    </Card>
+  );
+}

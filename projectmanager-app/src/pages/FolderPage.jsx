@@ -49,7 +49,7 @@ export default function FolderPage() {
 
       <ul className="grid auto-fill">
         {folders.map((f) => (
-          <li key={f.id}>
+          <li key={f.id} className="card-wrapper">
             <Card
               className="view-only"
               onClick={() => navigate(`/projects/${f.id}`)}
@@ -57,14 +57,16 @@ export default function FolderPage() {
               infoIcon={folderIcon}
             >
               {f.title}
-              <div className="card-buttons" onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => deleteCascade(f.id)}>Delete</button>
-                <button onClick={() => setModal(f)}>Change</button>
-              </div>
             </Card>
+
+            {/* Buttons jetzt außerhalb der Card */}
+            <div className="card-buttons">
+              <button onClick={() => deleteCascade(f.id)}>Delete</button>
+              <button onClick={() => setModal(f)}>Change</button>
+            </div>
           </li>
         ))}
-        <li>
+        <li className="card-wrapper">
           <Card className="add" onClick={() => setModal({})}>
             + Add Folder
           </Card>

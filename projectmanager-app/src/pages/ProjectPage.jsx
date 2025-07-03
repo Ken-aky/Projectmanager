@@ -22,61 +22,71 @@ export default function ProjectPage() {
   const [modal, setModal] = useState(null);
   const [info, setInfo] = useState(null);
 
-  /* ---------- SAVE ---------- */
   const save = async (p) => {
     p.id
       ? await update(p.id, p)
-      : await add({ ...p, folderId }); // ✅ folderId ergänzen
+      : await add({ ...p, folderId });
     setModal(null);
   };
 
-  /* ---------- DELETE ---------- */
   const deleteCascade = async (projectId) => {
-  const orphanTodos = todos.filter((t) => t.projectId === projectId);
+    const orphanTodos = todos.filter((t) => t.projectId === projectId);
 
-  const ok = window.confirm(
-    `Delete project?\n\n` +
-      `This will also remove ${orphanTodos.length} todo(s).\n\n` +
-      `Tip: Move todos elsewhere before deleting, if needed.`
-  );
-  if (!ok) return;
+    const ok = window.confirm(
+      `Delete project?\n\n` +
+        `This will also remove ${orphanTodos.length} todo(s).\n\n` +
+        `Tip: Move todos elsewhere before deleting, if needed.`
+    );
+    if (!ok) return;
 
-  await remove(projectId);
-  await reloadTodos(); // 🔄 Todos neu laden nach dem Löschen
+    await remove(projectId);
+    await reloadTodos();
   };
-
 
   return (
     <section>
       <h1>{folder?.title ? `${folder.title} – Projects` : "Projects"}</h1>
 
       <ul className="grid auto-fill">
-      {filteredProjects.map((p) => (
-        <li key={p.id}>
-          <Card
-            className="view-only"
-            onClick={() => navigate(`/todos/${p.id}`)}
-            onInfo={() => setInfo(p)}
-            infoIcon={projectIcon}
-          >
-            {p.title}
-            <div
-              className="card-buttons"
-              onClick={(e) => e.stopPropagation()}
+        {filteredProjects.map((p) => (
+          <li key={p.id} className="card-wrapper">
+            <Card
+              className="view-only"
+              onClick={() => navigate(`/todos/${p.id}`)}
+              onInfo={() => setInfo(p)}
+              infoIcon={projectIcon}
             >
-              <button onClick={() => deleteCascade(p.id)}>Delete</button>
-              <button onClick={() => setModal(p)}>Change</button>
-            </div>
-          </Card>
-        </li>
-      ))}
+              {p.title}
+            </Card>
 
-        <li>
+            <div className="card-buttons">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteCascade(p.id);
+                }}
+              >
+                Delete
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setModal(p);
+                }}
+              >
+                Change
+              </button>
+            </div>
+          </li>
+        ))}
+
+        <li className="card-wrapper">
           <Card className="add" onClick={() => setModal({})}>
             + Add Project
           </Card>
         </li>
       </ul>
+
 
       {modal && (
         <ProjectFormModal
